@@ -5,6 +5,10 @@ inputs:
     description: Version of grpc to setup
     required: false
     default: 1.60.0
+  token:
+    description: Used to pull grpc distributions from hindicator/grpc-versions. Since there's a default, this is typically not supplied by the user.
+    required: false
+    default: ${{ github.token }}
 runs:
   using: 'node20'
   main: 'dist/index.js'
