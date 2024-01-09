@@ -1,4 +1,4 @@
-name: 'Setup gRPC'
+name: 'Cpp gRPC Setup'
 description: 'Setup gRPC C++ environment'
 inputs:
   grpc-version:
