@@ -5,6 +5,10 @@ inputs:
     description: Version of grpc to setup
     required: false
     default: 1.60.0
+  grpc-installation-path:
+    description: Installation path of grpc
+    required: false
+    default: grpc
   token:
     description: Used to pull grpc distributions from hindicator/grpc-versions. Since there's a default, this is typically not supplied by the user.
     required: false
@@ -15,6 +19,3 @@ runs:
 branding:
   icon: box
   color: blue
-# outputs:
-#   time: # id of output
-#     description: 'The time we greeted you'
