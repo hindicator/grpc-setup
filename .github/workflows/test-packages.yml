@@ -16,8 +16,5 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: hindicator/grpc-setup@v1
-        with:
-          grpc-version: 1.60.0
-        env:
-          CMAKE_PREFIX_PATH: ~/grpc
+      - name: echo "Hello, world!"
+        run: echo "Hello, world!"
