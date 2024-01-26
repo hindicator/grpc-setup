@@ -34,6 +34,7 @@ export async function run(): Promise<void> {
     await cacheGrpcInstallation(versionSpec, grpcInstallationPath);
   }
 
+  info(`Setting env variables`);
   addPath(path.join(grpcInstallationPath, 'bin'));
 
   exportVariable('GRPC_ROOT', grpcInstallationPath);

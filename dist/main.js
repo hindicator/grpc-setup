@@ -34,6 +34,7 @@ function run() {
             yield (0, utils_1.makeGrpc)(grpcInstallationPath);
             yield (0, utils_1.cacheGrpcInstallation)(versionSpec, grpcInstallationPath);
         }
+        (0, core_1.info)(`Setting env variables`);
         (0, core_1.addPath)(path_1.default.join(grpcInstallationPath, 'bin'));
         (0, core_1.exportVariable)('GRPC_ROOT', grpcInstallationPath);
         (0, utils_1.addEnvPath)('CMAKE_PREFIX_PATH', grpcInstallationPath);
