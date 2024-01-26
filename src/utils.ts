@@ -1,5 +1,5 @@
 import * as cache from '@actions/cache';
-import { info, addPath, exportVariable } from '@actions/core';
+import { info, exportVariable } from '@actions/core';
 import isNil from 'lodash/isNil';
 import { exec } from '@actions/exec';
 import { mkdirP } from '@actions/io';
@@ -10,7 +10,7 @@ export const INSTALLATION_CACHE_KEY = 'grpc-setup';
 export const INPUT_GRPC_VERSION = 'grpc-version';
 export const INPUT_INSTALLATION_PATH = 'grpc-installation-path';
 
-function addEnvPath(name: string, value: string) {
+export function addEnvPath(name: string, value: string) {
   if (name in process.env) {
     exportVariable(name, `${process.env[name]}${path.delimiter}${value}`);
   } else {
@@ -29,7 +29,6 @@ export async function restoreGrpcInstallation(
       [installationPath],
       versionCacheKey,
     );
-    console.log(cacheKey);
 
     if (!isNil(cacheKey)) {
       info(`Found grpc installation in cache @ ${installationPath}`);
@@ -65,14 +64,14 @@ export async function installGrpcVersion(versionSpec: string) {
   ]);
 }
 
-export async function makeGrpc(installationPath: string) {
+export async function makeGrpc(grpcInstallationPath: string) {
   const extPath = 'grpc';
   info(`Configuring in ${extPath}`);
   const buildDir = path.join(extPath, 'build');
   await mkdirP(buildDir);
   await exec('pwd');
   try {
-    await mkdirP(installationPath);
+    await mkdirP(grpcInstallationPath);
   } catch (e) {
     console.log('Folder alreay exist');
     console.log(e);
@@ -84,7 +83,7 @@ export async function makeGrpc(installationPath: string) {
       '-DgRPC_SSL_PROVIDER=package',
       '-DgRPC_BUILD_TESTS=OFF',
       '-DBUILD_SHARED_LIBS=ON',
-      `-DCMAKE_INSTALL_PREFIX=${installationPath}`,
+      `-DCMAKE_INSTALL_PREFIX=${grpcInstallationPath}`,
       '..',
     ],
     { cwd: buildDir },
@@ -94,18 +93,8 @@ export async function makeGrpc(installationPath: string) {
   const jn = cpus().length.toString();
   await exec('make', ['-j', jn], { cwd: buildDir });
 
-  info(`Installing to ${installationPath}`);
-  await exec(
-    `cmake`,
-    ['--install', '.', '--prefix', '../../' + installationPath],
-    {
-      cwd: buildDir,
-    },
-  );
-
-  addPath(path.join(installationPath, 'bin'));
-
-  exportVariable('GRPC_ROOT', installationPath);
-  addEnvPath('CMAKE_PREFIX_PATH', installationPath);
-  addEnvPath('LD_LIBRARY_PATH', path.join(installationPath, 'lib'));
+  info(`Installing to ${grpcInstallationPath}`);
+  await exec(`cmake`, ['--install', '.', '--prefix', grpcInstallationPath], {
+    cwd: buildDir,
+  });
 }
