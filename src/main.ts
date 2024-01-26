@@ -21,20 +21,18 @@ export async function run(): Promise<void> {
     grpcInstallationPath,
   );
 
-  if (isInstallationCached) {
-    return;
+  if (!isInstallationCached) {
+    info(`Setup grpc version spec ${versionSpec}`);
+
+    if (existsSync('grpc')) {
+      info(`Found cloned grpc repo`);
+    } else {
+      await installGrpcVersion(versionSpec);
+    }
+    await makeGrpc(grpcInstallationPath);
+
+    await cacheGrpcInstallation(versionSpec, grpcInstallationPath);
   }
-
-  info(`Setup grpc version spec ${versionSpec}`);
-
-  if (existsSync('grpc')) {
-    info(`Found cloned grpc repo`);
-  } else {
-    await installGrpcVersion(versionSpec);
-  }
-  await makeGrpc(grpcInstallationPath);
-
-  await cacheGrpcInstallation(versionSpec, grpcInstallationPath);
 
   addPath(path.join(grpcInstallationPath, 'bin'));
 
