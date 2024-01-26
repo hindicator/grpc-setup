@@ -23,18 +23,18 @@ function run() {
         const installationPath = (0, core_1.getInput)(utils_1.INPUT_INSTALLATION_PATH);
         const grpcInstallationPath = `$HOME/${installationPath}`;
         const isInstallationCached = yield (0, utils_1.restoreGrpcInstallation)(versionSpec, grpcInstallationPath);
-        if (isInstallationCached) {
-            return;
+        if (!isInstallationCached) {
+            (0, core_1.info)(`Setup grpc version spec ${versionSpec}`);
+            if ((0, fs_1.existsSync)('grpc')) {
+                (0, core_1.info)(`Found cloned grpc repo`);
+            }
+            else {
+                yield (0, utils_1.installGrpcVersion)(versionSpec);
+            }
+            yield (0, utils_1.makeGrpc)(grpcInstallationPath);
+            yield (0, utils_1.cacheGrpcInstallation)(versionSpec, grpcInstallationPath);
         }
-        (0, core_1.info)(`Setup grpc version spec ${versionSpec}`);
-        if ((0, fs_1.existsSync)('grpc')) {
-            (0, core_1.info)(`Found cloned grpc repo`);
-        }
-        else {
-            yield (0, utils_1.installGrpcVersion)(versionSpec);
-        }
-        yield (0, utils_1.makeGrpc)(grpcInstallationPath);
-        yield (0, utils_1.cacheGrpcInstallation)(versionSpec, grpcInstallationPath);
+        (0, core_1.info)(`Setting env variables`);
         (0, core_1.addPath)(path_1.default.join(grpcInstallationPath, 'bin'));
         (0, core_1.exportVariable)('GRPC_ROOT', grpcInstallationPath);
         (0, utils_1.addEnvPath)('CMAKE_PREFIX_PATH', grpcInstallationPath);
