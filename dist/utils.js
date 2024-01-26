@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeGrpc = exports.installGrpcVersion = exports.cacheGrpcInstallation = exports.restoreGrpcInstallation = exports.INPUT_INSTALLATION_PATH = exports.INPUT_GRPC_VERSION = exports.INSTALLATION_CACHE_KEY = void 0;
+exports.makeGrpc = exports.installGrpcVersion = exports.cacheGrpcInstallation = exports.restoreGrpcInstallation = exports.addEnvPath = exports.INPUT_INSTALLATION_PATH = exports.INPUT_GRPC_VERSION = exports.INSTALLATION_CACHE_KEY = void 0;
 const cache = __importStar(require("@actions/cache"));
 const core_1 = require("@actions/core");
 const isNil_1 = __importDefault(require("lodash/isNil"));
@@ -54,12 +54,12 @@ function addEnvPath(name, value) {
         (0, core_1.exportVariable)(name, value);
     }
 }
+exports.addEnvPath = addEnvPath;
 function restoreGrpcInstallation(versionSpec, installationPath) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!(0, isNil_1.default)(installationPath)) {
             const versionCacheKey = `${exports.INSTALLATION_CACHE_KEY}-${versionSpec}`;
             const cacheKey = yield cache.restoreCache([installationPath], versionCacheKey);
-            console.log(cacheKey);
             if (!(0, isNil_1.default)(cacheKey)) {
                 (0, core_1.info)(`Found grpc installation in cache @ ${installationPath}`);
                 return true;
@@ -94,7 +94,7 @@ function installGrpcVersion(versionSpec) {
     });
 }
 exports.installGrpcVersion = installGrpcVersion;
-function makeGrpc(installationPath) {
+function makeGrpc(grpcInstallationPath) {
     return __awaiter(this, void 0, void 0, function* () {
         const extPath = 'grpc';
         (0, core_1.info)(`Configuring in ${extPath}`);
@@ -102,7 +102,7 @@ function makeGrpc(installationPath) {
         yield (0, io_1.mkdirP)(buildDir);
         yield (0, exec_1.exec)('pwd');
         try {
-            yield (0, io_1.mkdirP)(installationPath);
+            yield (0, io_1.mkdirP)(grpcInstallationPath);
         }
         catch (e) {
             console.log('Folder alreay exist');
@@ -113,20 +113,16 @@ function makeGrpc(installationPath) {
             '-DgRPC_SSL_PROVIDER=package',
             '-DgRPC_BUILD_TESTS=OFF',
             '-DBUILD_SHARED_LIBS=ON',
-            `-DCMAKE_INSTALL_PREFIX=${installationPath}`,
+            `-DCMAKE_INSTALL_PREFIX=${grpcInstallationPath}`,
             '..',
         ], { cwd: buildDir });
         (0, core_1.info)(`Compiling in ${buildDir}`);
         const jn = (0, os_1.cpus)().length.toString();
         yield (0, exec_1.exec)('make', ['-j', jn], { cwd: buildDir });
-        (0, core_1.info)(`Installing to ${installationPath}`);
-        yield (0, exec_1.exec)(`cmake`, ['--install', '.', '--prefix', '../../' + installationPath], {
+        (0, core_1.info)(`Installing to ${grpcInstallationPath}`);
+        yield (0, exec_1.exec)(`cmake`, ['--install', '.', '--prefix', grpcInstallationPath], {
             cwd: buildDir,
         });
-        (0, core_1.addPath)(path_1.default.join(installationPath, 'bin'));
-        (0, core_1.exportVariable)('GRPC_ROOT', installationPath);
-        addEnvPath('CMAKE_PREFIX_PATH', installationPath);
-        addEnvPath('LD_LIBRARY_PATH', path_1.default.join(installationPath, 'lib'));
     });
 }
 exports.makeGrpc = makeGrpc;
