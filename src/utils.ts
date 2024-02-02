@@ -1,5 +1,5 @@
 import * as cache from '@actions/cache';
-import { info, exportVariable } from '@actions/core';
+import { info, exportVariable, debug } from '@actions/core';
 import isNil from 'lodash/isNil';
 import { exec } from '@actions/exec';
 import { mkdirP } from '@actions/io';
@@ -68,10 +68,14 @@ export async function makeGrpc(grpcInstallationPath: string) {
   const extPath = 'grpc';
   info(`Configuring in ${extPath}`);
   const buildDir = path.join(extPath, 'build');
+  const grpcLocalPath = path.join(buildDir, '.local');
   await mkdirP(buildDir);
+  debug('Starting cmake...');
   await exec('pwd');
+  await exec('cd build');
   try {
     await mkdirP(grpcInstallationPath);
+    await mkdirP(grpcLocalPath);
   } catch (e) {
     console.log('Folder alreay exist');
     console.log(e);
@@ -80,11 +84,10 @@ export async function makeGrpc(grpcInstallationPath: string) {
     'cmake',
     [
       '-DgRPC_INSTALL=ON',
-      '-DgRPC_SSL_PROVIDER=package',
       '-DgRPC_BUILD_TESTS=OFF',
+      `-DCMAKE_INSTALL_PREFIX="${grpcLocalPath}"`,
       '-DBUILD_SHARED_LIBS=ON',
-      `-DCMAKE_INSTALL_PREFIX=${grpcInstallationPath}`,
-      '..',
+      '../..',
     ],
     { cwd: buildDir },
   );
@@ -95,6 +98,9 @@ export async function makeGrpc(grpcInstallationPath: string) {
 
   info(`Installing to ${grpcInstallationPath}`);
   await exec(`cmake`, ['--install', '.', '--prefix', grpcInstallationPath], {
+    cwd: buildDir,
+  });
+  await exec(`make`, [], {
     cwd: buildDir,
   });
 }

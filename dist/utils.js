@@ -99,10 +99,14 @@ function makeGrpc(grpcInstallationPath) {
         const extPath = 'grpc';
         (0, core_1.info)(`Configuring in ${extPath}`);
         const buildDir = path_1.default.join(extPath, 'build');
+        const grpcLocalPath = path_1.default.join(buildDir, '.local');
         yield (0, io_1.mkdirP)(buildDir);
+        (0, core_1.debug)('Starting cmake...');
         yield (0, exec_1.exec)('pwd');
+        yield (0, exec_1.exec)('cd build');
         try {
             yield (0, io_1.mkdirP)(grpcInstallationPath);
+            yield (0, io_1.mkdirP)(grpcLocalPath);
         }
         catch (e) {
             console.log('Folder alreay exist');
@@ -110,17 +114,19 @@ function makeGrpc(grpcInstallationPath) {
         }
         yield (0, exec_1.exec)('cmake', [
             '-DgRPC_INSTALL=ON',
-            '-DgRPC_SSL_PROVIDER=package',
             '-DgRPC_BUILD_TESTS=OFF',
+            `-DCMAKE_INSTALL_PREFIX="${grpcLocalPath}"`,
             '-DBUILD_SHARED_LIBS=ON',
-            `-DCMAKE_INSTALL_PREFIX=${grpcInstallationPath}`,
-            '..',
+            '../..',
         ], { cwd: buildDir });
         (0, core_1.info)(`Compiling in ${buildDir}`);
         const jn = (0, os_1.cpus)().length.toString();
         yield (0, exec_1.exec)('make', ['-j', jn], { cwd: buildDir });
         (0, core_1.info)(`Installing to ${grpcInstallationPath}`);
         yield (0, exec_1.exec)(`cmake`, ['--install', '.', '--prefix', grpcInstallationPath], {
+            cwd: buildDir,
+        });
+        yield (0, exec_1.exec)(`make`, [], {
             cwd: buildDir,
         });
     });
