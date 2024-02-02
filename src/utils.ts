@@ -97,9 +97,13 @@ export async function makeGrpc(grpcInstallationPath: string) {
   await exec('make', ['-j', jn], { cwd: buildDir });
 
   info(`Installing to ${grpcInstallationPath}`);
-  await exec(`cmake`, ['--install', '.', '--prefix', grpcInstallationPath], {
-    cwd: buildDir,
-  });
+  await exec(
+    `sudo cmake`,
+    ['--install', '.', '--prefix', grpcInstallationPath],
+    {
+      cwd: buildDir,
+    },
+  );
   await exec(`make`, [], {
     cwd: buildDir,
   });
