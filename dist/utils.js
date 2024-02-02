@@ -99,7 +99,7 @@ function makeGrpc(grpcInstallationPath) {
         const extPath = 'grpc';
         (0, core_1.info)(`Configuring in ${extPath}`);
         const buildDir = path_1.default.join(extPath, 'build');
-        const grpcLocalPath = path_1.default.join(buildDir, '.local');
+        const grpcLocalPath = path_1.default.join(grpcInstallationPath, '.local');
         yield (0, io_1.mkdirP)(buildDir);
         (0, core_1.debug)('Starting cmake...');
         yield (0, exec_1.exec)('pwd');
@@ -123,7 +123,7 @@ function makeGrpc(grpcInstallationPath) {
         const jn = (0, os_1.cpus)().length.toString();
         yield (0, exec_1.exec)('make', ['-j', jn], { cwd: buildDir });
         (0, core_1.info)(`Installing to ${grpcInstallationPath}`);
-        yield (0, exec_1.exec)(`cmake`, ['--install', '.', '--prefix', grpcInstallationPath], {
+        yield (0, exec_1.exec)(`sudo cmake`, ['--install', '.', '--prefix', grpcInstallationPath], {
             cwd: buildDir,
         });
         yield (0, exec_1.exec)(`make`, [], {
