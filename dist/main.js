@@ -22,6 +22,7 @@ function run() {
         const versionSpec = (0, core_1.getInput)(utils_1.INPUT_GRPC_VERSION);
         const installationPath = (0, core_1.getInput)(utils_1.INPUT_INSTALLATION_PATH);
         const grpcInstallationPath = `$HOME/${installationPath}`;
+        const grpcLocalPath = path_1.default.join(grpcInstallationPath, '.local');
         const isInstallationCached = yield (0, utils_1.restoreGrpcInstallation)(versionSpec, grpcInstallationPath);
         if (!isInstallationCached) {
             (0, core_1.info)(`Setup grpc version spec ${versionSpec}`);
@@ -36,6 +37,7 @@ function run() {
         }
         (0, core_1.info)(`Setting env variables`);
         (0, core_1.addPath)(path_1.default.join(grpcInstallationPath, 'bin'));
+        (0, core_1.addPath)(path_1.default.join(grpcLocalPath));
         (0, core_1.exportVariable)('GRPC_ROOT', grpcInstallationPath);
         (0, utils_1.addEnvPath)('CMAKE_PREFIX_PATH', grpcInstallationPath);
         (0, utils_1.addEnvPath)('LD_LIBRARY_PATH', path_1.default.join(grpcInstallationPath, 'lib'));

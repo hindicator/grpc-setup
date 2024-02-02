@@ -15,6 +15,7 @@ export async function run(): Promise<void> {
   const versionSpec = getInput(INPUT_GRPC_VERSION);
   const installationPath = getInput(INPUT_INSTALLATION_PATH);
   const grpcInstallationPath = `$HOME/${installationPath}`;
+  const grpcLocalPath = path.join(grpcInstallationPath, '.local');
 
   const isInstallationCached = await restoreGrpcInstallation(
     versionSpec,
@@ -36,6 +37,7 @@ export async function run(): Promise<void> {
 
   info(`Setting env variables`);
   addPath(path.join(grpcInstallationPath, 'bin'));
+  addPath(path.join(grpcLocalPath));
 
   exportVariable('GRPC_ROOT', grpcInstallationPath);
   addEnvPath('CMAKE_PREFIX_PATH', grpcInstallationPath);

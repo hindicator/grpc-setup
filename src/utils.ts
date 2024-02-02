@@ -1,5 +1,5 @@
 import * as cache from '@actions/cache';
-import { info, exportVariable, debug } from '@actions/core';
+import { info, exportVariable } from '@actions/core';
 import isNil from 'lodash/isNil';
 import { exec } from '@actions/exec';
 import { mkdirP } from '@actions/io';
@@ -70,7 +70,6 @@ export async function makeGrpc(grpcInstallationPath: string) {
   const buildDir = path.join(extPath, 'build');
   const grpcLocalPath = path.join(grpcInstallationPath, '.local');
   await mkdirP(buildDir);
-  debug('Starting cmake...');
   await exec('pwd');
   try {
     await mkdirP(grpcInstallationPath);
@@ -96,13 +95,9 @@ export async function makeGrpc(grpcInstallationPath: string) {
   await exec('make', ['-j', jn], { cwd: buildDir });
 
   info(`Installing to ${grpcInstallationPath}`);
-  await exec(
-    `sudo cmake`,
-    ['--install', '.', '--prefix', grpcInstallationPath],
-    {
-      cwd: buildDir,
-    },
-  );
+  await exec(`cmake`, ['--install', '.', '--prefix', grpcInstallationPath], {
+    cwd: buildDir,
+  });
   await exec(`make`, [], {
     cwd: buildDir,
   });
