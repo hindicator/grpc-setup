@@ -15,9 +15,8 @@ import { mkdirP } from '@actions/io';
 export async function run(): Promise<void> {
   const versionSpec = getInput(INPUT_GRPC_VERSION);
   const installationPath = getInput(INPUT_INSTALLATION_PATH);
-  const grpcInstallationPath = `$HOME/${installationPath}`;
+  const grpcInstallationPath = `cache/${installationPath}`;
 
-  await mkdirP(grpcInstallationPath);
   addPath(path.join(grpcInstallationPath, 'bin'));
 
   const isInstallationCached = await restoreGrpcInstallation(
@@ -27,6 +26,7 @@ export async function run(): Promise<void> {
 
   if (!isInstallationCached) {
     info(`Setup grpc version spec ${versionSpec}`);
+    await mkdirP(grpcInstallationPath);
 
     if (existsSync('grpc')) {
       info(`Found cloned grpc repo`);
