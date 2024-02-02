@@ -86,7 +86,7 @@ export async function makeGrpc(grpcInstallationPath: string) {
       '-DgRPC_BUILD_TESTS=OFF',
       `-DCMAKE_INSTALL_PREFIX="${grpcLocalPath}"`,
       '-DBUILD_SHARED_LIBS=ON',
-      '../..',
+      '..',
     ],
     { cwd: buildDir },
   );
