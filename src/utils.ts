@@ -68,7 +68,7 @@ export async function makeGrpc(grpcInstallationPath: string) {
   const extPath = 'grpc';
   info(`Configuring in ${extPath}`);
   const buildDir = path.join(extPath, 'build');
-  const grpcLocalPath = path.join(buildDir, '.local');
+  const grpcLocalPath = path.join(grpcInstallationPath, '.local');
   await mkdirP(buildDir);
   debug('Starting cmake...');
   await exec('pwd');
