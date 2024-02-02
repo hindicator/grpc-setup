@@ -116,7 +116,7 @@ function makeGrpc(grpcInstallationPath) {
             '-DgRPC_BUILD_TESTS=OFF',
             `-DCMAKE_INSTALL_PREFIX="${grpcLocalPath}"`,
             '-DBUILD_SHARED_LIBS=ON',
-            '../..',
+            '..',
         ], { cwd: buildDir });
         (0, core_1.info)(`Compiling in ${buildDir}`);
         const jn = (0, os_1.cpus)().length.toString();
