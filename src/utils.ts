@@ -72,7 +72,6 @@ export async function makeGrpc(grpcInstallationPath: string) {
   await mkdirP(buildDir);
   debug('Starting cmake...');
   await exec('pwd');
-  await exec('cd build');
   try {
     await mkdirP(grpcInstallationPath);
     await mkdirP(grpcLocalPath);

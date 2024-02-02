@@ -103,7 +103,6 @@ function makeGrpc(grpcInstallationPath) {
         yield (0, io_1.mkdirP)(buildDir);
         (0, core_1.debug)('Starting cmake...');
         yield (0, exec_1.exec)('pwd');
-        yield (0, exec_1.exec)('cd build');
         try {
             yield (0, io_1.mkdirP)(grpcInstallationPath);
             yield (0, io_1.mkdirP)(grpcLocalPath);
