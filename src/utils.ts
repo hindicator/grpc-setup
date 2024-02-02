@@ -68,22 +68,14 @@ export async function makeGrpc(grpcInstallationPath: string) {
   const extPath = 'grpc';
   info(`Configuring in ${extPath}`);
   const buildDir = path.join(extPath, 'build');
-  const grpcLocalPath = path.join(grpcInstallationPath, '.local');
   await mkdirP(buildDir);
-  await exec('pwd');
-  try {
-    await mkdirP(grpcInstallationPath);
-    await mkdirP(grpcLocalPath);
-  } catch (e) {
-    console.log('Folder alreay exist');
-    console.log(e);
-  }
+
   await exec(
     'cmake',
     [
       '-DgRPC_INSTALL=ON',
       '-DgRPC_BUILD_TESTS=OFF',
-      `-DCMAKE_INSTALL_PREFIX="${grpcLocalPath}"`,
+      `-DCMAKE_INSTALL_PREFIX=${grpcInstallationPath}`,
       '-DBUILD_SHARED_LIBS=ON',
       '..',
     ],
@@ -93,12 +85,7 @@ export async function makeGrpc(grpcInstallationPath: string) {
   info(`Compiling in ${buildDir}`);
   const jn = cpus().length.toString();
   await exec('make', ['-j', jn], { cwd: buildDir });
-
-  info(`Installing to ${grpcInstallationPath}`);
-  await exec(`cmake`, ['--install', '.', '--prefix', grpcInstallationPath], {
-    cwd: buildDir,
-  });
-  await exec(`make`, [], {
+  await exec(`make install`, [], {
     cwd: buildDir,
   });
 }

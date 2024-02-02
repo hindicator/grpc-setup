@@ -17,12 +17,14 @@ const fs_1 = require("fs");
 const core_1 = require("@actions/core");
 const utils_1 = require("./utils");
 const path_1 = __importDefault(require("path"));
+const io_1 = require("@actions/io");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const versionSpec = (0, core_1.getInput)(utils_1.INPUT_GRPC_VERSION);
         const installationPath = (0, core_1.getInput)(utils_1.INPUT_INSTALLATION_PATH);
         const grpcInstallationPath = `$HOME/${installationPath}`;
-        const grpcLocalPath = path_1.default.join(grpcInstallationPath, '.local');
+        yield (0, io_1.mkdirP)(grpcInstallationPath);
+        (0, core_1.addPath)(path_1.default.join(grpcInstallationPath, 'bin'));
         const isInstallationCached = yield (0, utils_1.restoreGrpcInstallation)(versionSpec, grpcInstallationPath);
         if (!isInstallationCached) {
             (0, core_1.info)(`Setup grpc version spec ${versionSpec}`);
@@ -37,10 +39,10 @@ function run() {
         }
         (0, core_1.info)(`Setting env variables`);
         (0, core_1.addPath)(path_1.default.join(grpcInstallationPath, 'bin'));
-        (0, core_1.addPath)(path_1.default.join(grpcLocalPath));
         (0, core_1.exportVariable)('GRPC_ROOT', grpcInstallationPath);
         (0, utils_1.addEnvPath)('CMAKE_PREFIX_PATH', grpcInstallationPath);
         (0, utils_1.addEnvPath)('LD_LIBRARY_PATH', path_1.default.join(grpcInstallationPath, 'lib'));
+        (0, core_1.info)(`Successfully setup grpc version ${versionSpec}`);
     });
 }
 exports.run = run;

@@ -10,12 +10,15 @@ import {
   restoreGrpcInstallation,
 } from './utils';
 import path from 'path';
+import { mkdirP } from '@actions/io';
 
 export async function run(): Promise<void> {
   const versionSpec = getInput(INPUT_GRPC_VERSION);
   const installationPath = getInput(INPUT_INSTALLATION_PATH);
   const grpcInstallationPath = `$HOME/${installationPath}`;
-  const grpcLocalPath = path.join(grpcInstallationPath, '.local');
+
+  await mkdirP(grpcInstallationPath);
+  addPath(path.join(grpcInstallationPath, 'bin'));
 
   const isInstallationCached = await restoreGrpcInstallation(
     versionSpec,
@@ -30,6 +33,7 @@ export async function run(): Promise<void> {
     } else {
       await installGrpcVersion(versionSpec);
     }
+
     await makeGrpc(grpcInstallationPath);
 
     await cacheGrpcInstallation(versionSpec, grpcInstallationPath);
@@ -37,9 +41,10 @@ export async function run(): Promise<void> {
 
   info(`Setting env variables`);
   addPath(path.join(grpcInstallationPath, 'bin'));
-  addPath(path.join(grpcLocalPath));
 
   exportVariable('GRPC_ROOT', grpcInstallationPath);
   addEnvPath('CMAKE_PREFIX_PATH', grpcInstallationPath);
   addEnvPath('LD_LIBRARY_PATH', path.join(grpcInstallationPath, 'lib'));
+
+  info(`Successfully setup grpc version ${versionSpec}`);
 }
