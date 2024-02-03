@@ -103,7 +103,7 @@ function makeGrpc(grpcInstallationPath) {
         yield (0, exec_1.exec)('cmake', [
             '-DgRPC_INSTALL=ON',
             '-DgRPC_BUILD_TESTS=OFF',
-            `-DCMAKE_INSTALL_PREFIX=${grpcInstallationPath}`,
+            `-DCMAKE_INSTALL_PREFIX=../../${grpcInstallationPath}`,
             '-DBUILD_SHARED_LIBS=ON',
             '..',
         ], { cwd: buildDir });
