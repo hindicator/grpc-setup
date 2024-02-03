@@ -15,9 +15,7 @@ import { mkdirP } from '@actions/io';
 export async function run(): Promise<void> {
   const versionSpec = getInput(INPUT_GRPC_VERSION);
   const installationPath = getInput(INPUT_INSTALLATION_PATH);
-  const grpcInstallationPath = `cache/${installationPath}`;
-
-  addPath(path.join(grpcInstallationPath, 'bin'));
+  const grpcInstallationPath = `${process.env.GITHUB_WORKSPACE}/cache/${installationPath}`;
 
   const isInstallationCached = await restoreGrpcInstallation(
     versionSpec,

@@ -22,8 +22,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const versionSpec = (0, core_1.getInput)(utils_1.INPUT_GRPC_VERSION);
         const installationPath = (0, core_1.getInput)(utils_1.INPUT_INSTALLATION_PATH);
-        const grpcInstallationPath = `cache/${installationPath}`;
-        (0, core_1.addPath)(path_1.default.join(grpcInstallationPath, 'bin'));
+        const grpcInstallationPath = `${process.env.GITHUB_WORKSPACE}/cache/${installationPath}`;
         const isInstallationCached = yield (0, utils_1.restoreGrpcInstallation)(versionSpec, grpcInstallationPath);
         if (!isInstallationCached) {
             (0, core_1.info)(`Setup grpc version spec ${versionSpec}`);
