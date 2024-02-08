@@ -4,9 +4,7 @@ This GitHub Action package is designed to install and build gRPC C++ dependencie
 
 ## gRPC C++ Template Example
 
-Check this [gRPC C++ Template][] repository.
-
-[gRPC C++ Template]: https://github.com/hindicator/grpc-setup.git
+Check this Check this [gRPC C++ Template](https://github.com/hindicator/grpc-cpp-template) repository. repository.
 
 **Example CI Job**
 ```
