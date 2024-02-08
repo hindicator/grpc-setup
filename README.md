@@ -2,6 +2,12 @@
 
 This GitHub Action package is designed to install and build gRPC C++ dependencies for your project. It compiles, installs, and caches the gRPC environment for you, making it easy to use gRPC in your GitHub workflows.
 
+## gRPC C++ Template Example
+
+Check this [gRPC C++ Template][] repository.
+
+[gRPC C++ Template]: https://github.com/hindicator/grpc-setup.git
+
 ## Inputs
 
 This action has the following inputs:
