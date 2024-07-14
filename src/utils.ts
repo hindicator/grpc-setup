@@ -20,12 +20,13 @@ export function parseBooleanInput(input: string): boolean {
 }
 
 export async function restoreDepCache(
-  versionSpec: string,
   installationPath: string,
+  grpcVersion: string,
   shouldIncludeGoogleTest: boolean,
+  googleTestVersion: string,
 ): Promise<boolean> {
   if (!isNil(installationPath)) {
-    const versionCacheKey = `${INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${versionSpec}`;
+    const versionCacheKey = `${INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${googleTestVersion}-${grpcVersion}`;
 
     const cacheKey = await cache.restoreCache(
       [installationPath],
@@ -41,14 +42,16 @@ export async function restoreDepCache(
 }
 
 export async function createDepCache(
-  versionSpec: string,
   installationPath: string,
+  grpcVersion: string,
   shouldIncludeGoogleTest: boolean,
+  googleTestVersion: string,
 ): Promise<void> {
-  const versionCacheKey = `${INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${versionSpec}`;
+  const versionCacheKey = `${INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${googleTestVersion}-${grpcVersion}`;
 
   const cacheId = await cache.saveCache([installationPath], versionCacheKey);
 
   info(`Cached grpc installation @ ${installationPath}`);
+  info(`versionCacheKey : ${versionCacheKey}`);
   info(`Cache ID: ${cacheId}`);
 }

@@ -1,8 +1,7 @@
-import { info, getInput } from '@actions/core';
+import { info } from '@actions/core';
 import { exec } from '@actions/exec';
 import { mkdirP } from '@actions/io';
 import path from 'path';
-import { INPUT_GOOGLE_TEST_VERSION } from './consts';
 
 export async function cloneGoogleTest(versionSpec: string) {
   info('Cloning grpc repo...');
@@ -10,7 +9,7 @@ export async function cloneGoogleTest(versionSpec: string) {
     'clone',
     'https://github.com/google/googletest.git',
     '-b',
-    'v1.14.0' + versionSpec,
+    'v' + versionSpec,
   ]);
 }
 
@@ -29,9 +28,10 @@ export async function makeBuildGoogleTest(binPath: string) {
   });
 }
 
-export async function buildGoogleTest(binPath: string) {
-  const googleTestVersion = getInput(INPUT_GOOGLE_TEST_VERSION);
-
+export async function buildGoogleTest(
+  binPath: string,
+  googleTestVersion: string,
+) {
   info(`Cloning googleTest repo with tag ${googleTestVersion}`);
   await cloneGoogleTest(googleTestVersion);
 
