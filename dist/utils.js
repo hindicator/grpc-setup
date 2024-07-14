@@ -35,17 +35,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeGrpc = exports.installGrpcVersion = exports.cacheGrpcInstallation = exports.restoreGrpcInstallation = exports.addEnvPath = exports.INPUT_INSTALLATION_PATH = exports.INPUT_GRPC_VERSION = exports.INSTALLATION_CACHE_KEY = void 0;
+exports.createDepCache = exports.restoreDepCache = exports.parseBooleanInput = exports.addEnvPath = void 0;
 const cache = __importStar(require("@actions/cache"));
 const core_1 = require("@actions/core");
 const isNil_1 = __importDefault(require("lodash/isNil"));
-const exec_1 = require("@actions/exec");
-const io_1 = require("@actions/io");
-const os_1 = require("os");
 const path_1 = __importDefault(require("path"));
-exports.INSTALLATION_CACHE_KEY = 'grpc-setup';
-exports.INPUT_GRPC_VERSION = 'grpc-version';
-exports.INPUT_INSTALLATION_PATH = 'grpc-installation-path';
+const consts_1 = require("./consts");
 function addEnvPath(name, value) {
     if (name in process.env) {
         (0, core_1.exportVariable)(name, `${process.env[name]}${path_1.default.delimiter}${value}`);
@@ -55,10 +50,17 @@ function addEnvPath(name, value) {
     }
 }
 exports.addEnvPath = addEnvPath;
-function restoreGrpcInstallation(versionSpec, installationPath) {
+function parseBooleanInput(input) {
+    if (input === 'true') {
+        return true;
+    }
+    return false;
+}
+exports.parseBooleanInput = parseBooleanInput;
+function restoreDepCache(installationPath, grpcVersion, shouldIncludeGoogleTest, googleTestVersion) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!(0, isNil_1.default)(installationPath)) {
-            const versionCacheKey = `${exports.INSTALLATION_CACHE_KEY}-${versionSpec}`;
+            const versionCacheKey = `${consts_1.INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${googleTestVersion}-${grpcVersion}`;
             const cacheKey = yield cache.restoreCache([installationPath], versionCacheKey);
             if (!(0, isNil_1.default)(cacheKey)) {
                 (0, core_1.info)(`Found grpc installation in cache @ ${installationPath}`);
@@ -68,51 +70,14 @@ function restoreGrpcInstallation(versionSpec, installationPath) {
         return false;
     });
 }
-exports.restoreGrpcInstallation = restoreGrpcInstallation;
-function cacheGrpcInstallation(versionSpec, installationPath) {
+exports.restoreDepCache = restoreDepCache;
+function createDepCache(installationPath, grpcVersion, shouldIncludeGoogleTest, googleTestVersion) {
     return __awaiter(this, void 0, void 0, function* () {
-        const versionCacheKey = `${exports.INSTALLATION_CACHE_KEY}-${versionSpec}`;
+        const versionCacheKey = `${consts_1.INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${googleTestVersion}-${grpcVersion}`;
         const cacheId = yield cache.saveCache([installationPath], versionCacheKey);
         (0, core_1.info)(`Cached grpc installation @ ${installationPath}`);
+        (0, core_1.info)(`versionCacheKey : ${versionCacheKey}`);
         (0, core_1.info)(`Cache ID: ${cacheId}`);
     });
 }
-exports.cacheGrpcInstallation = cacheGrpcInstallation;
-function installGrpcVersion(versionSpec) {
-    return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.info)('Cloning grpc repo...');
-        yield (0, exec_1.exec)('git', [
-            'clone',
-            '--depth',
-            '1',
-            '--recurse-submodules',
-            '--shallow-submodules',
-            '-b',
-            'v' + versionSpec,
-            'https://github.com/grpc/grpc',
-        ]);
-    });
-}
-exports.installGrpcVersion = installGrpcVersion;
-function makeGrpc(grpcInstallationPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const extPath = 'grpc';
-        (0, core_1.info)(`Configuring in ${extPath}`);
-        const buildDir = path_1.default.join(extPath, 'build');
-        yield (0, io_1.mkdirP)(buildDir);
-        yield (0, exec_1.exec)('cmake', [
-            '-DgRPC_INSTALL=ON',
-            '-DgRPC_BUILD_TESTS=OFF',
-            `-DCMAKE_INSTALL_PREFIX=${grpcInstallationPath}`,
-            '-DBUILD_SHARED_LIBS=ON',
-            '..',
-        ], { cwd: buildDir });
-        (0, core_1.info)(`Compiling in ${buildDir}`);
-        const jn = (0, os_1.cpus)().length.toString();
-        yield (0, exec_1.exec)('make', ['-j', jn], { cwd: buildDir });
-        yield (0, exec_1.exec)(`make install`, [], {
-            cwd: buildDir,
-        });
-    });
-}
-exports.makeGrpc = makeGrpc;
+exports.createDepCache = createDepCache;

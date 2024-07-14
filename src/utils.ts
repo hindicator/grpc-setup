@@ -1,14 +1,8 @@
 import * as cache from '@actions/cache';
 import { info, exportVariable } from '@actions/core';
 import isNil from 'lodash/isNil';
-import { exec } from '@actions/exec';
-import { mkdirP } from '@actions/io';
-import { cpus } from 'os';
 import path from 'path';
-
-export const INSTALLATION_CACHE_KEY = 'grpc-setup';
-export const INPUT_GRPC_VERSION = 'grpc-version';
-export const INPUT_INSTALLATION_PATH = 'grpc-installation-path';
+import { INSTALLATION_CACHE_KEY } from './consts';
 
 export function addEnvPath(name: string, value: string) {
   if (name in process.env) {
@@ -18,12 +12,21 @@ export function addEnvPath(name: string, value: string) {
   }
 }
 
-export async function restoreGrpcInstallation(
-  versionSpec: string,
+export function parseBooleanInput(input: string): boolean {
+  if (input === 'true') {
+    return true;
+  }
+  return false;
+}
+
+export async function restoreDepCache(
   installationPath: string,
+  grpcVersion: string,
+  shouldIncludeGoogleTest: boolean,
+  googleTestVersion: string,
 ): Promise<boolean> {
   if (!isNil(installationPath)) {
-    const versionCacheKey = `${INSTALLATION_CACHE_KEY}-${versionSpec}`;
+    const versionCacheKey = `${INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${googleTestVersion}-${grpcVersion}`;
 
     const cacheKey = await cache.restoreCache(
       [installationPath],
@@ -38,54 +41,17 @@ export async function restoreGrpcInstallation(
   return false;
 }
 
-export async function cacheGrpcInstallation(
-  versionSpec: string,
+export async function createDepCache(
   installationPath: string,
+  grpcVersion: string,
+  shouldIncludeGoogleTest: boolean,
+  googleTestVersion: string,
 ): Promise<void> {
-  const versionCacheKey = `${INSTALLATION_CACHE_KEY}-${versionSpec}`;
+  const versionCacheKey = `${INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${googleTestVersion}-${grpcVersion}`;
 
   const cacheId = await cache.saveCache([installationPath], versionCacheKey);
 
   info(`Cached grpc installation @ ${installationPath}`);
+  info(`versionCacheKey : ${versionCacheKey}`);
   info(`Cache ID: ${cacheId}`);
-}
-
-export async function installGrpcVersion(versionSpec: string) {
-  info('Cloning grpc repo...');
-  await exec('git', [
-    'clone',
-    '--depth',
-    '1',
-    '--recurse-submodules',
-    '--shallow-submodules',
-    '-b',
-    'v' + versionSpec,
-    'https://github.com/grpc/grpc',
-  ]);
-}
-
-export async function makeGrpc(grpcInstallationPath: string) {
-  const extPath = 'grpc';
-  info(`Configuring in ${extPath}`);
-  const buildDir = path.join(extPath, 'build');
-  await mkdirP(buildDir);
-
-  await exec(
-    'cmake',
-    [
-      '-DgRPC_INSTALL=ON',
-      '-DgRPC_BUILD_TESTS=OFF',
-      `-DCMAKE_INSTALL_PREFIX=${grpcInstallationPath}`,
-      '-DBUILD_SHARED_LIBS=ON',
-      '..',
-    ],
-    { cwd: buildDir },
-  );
-
-  info(`Compiling in ${buildDir}`);
-  const jn = cpus().length.toString();
-  await exec('make', ['-j', jn], { cwd: buildDir });
-  await exec(`make install`, [], {
-    cwd: buildDir,
-  });
 }

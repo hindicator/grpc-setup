@@ -13,35 +13,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.run = void 0;
-const fs_1 = require("fs");
 const core_1 = require("@actions/core");
 const utils_1 = require("./utils");
 const path_1 = __importDefault(require("path"));
 const io_1 = require("@actions/io");
+const consts_1 = require("./consts");
+const grpcUtils_1 = require("./grpcUtils");
+const googleTestUtils_1 = require("./googleTestUtils");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        const versionSpec = (0, core_1.getInput)(utils_1.INPUT_GRPC_VERSION);
-        const installationPath = (0, core_1.getInput)(utils_1.INPUT_INSTALLATION_PATH);
-        const grpcInstallationPath = `${process.env.GITHUB_WORKSPACE}/cache/${installationPath}`;
-        const isInstallationCached = yield (0, utils_1.restoreGrpcInstallation)(versionSpec, grpcInstallationPath);
+        const grpcVersionSpec = (0, core_1.getInput)(consts_1.INPUT_GRPC_VERSION);
+        const installationPath = (0, core_1.getInput)(consts_1.INPUT_INSTALLATION_PATH);
+        const googleTestVersion = (0, core_1.getInput)(consts_1.INPUT_GOOGLE_TEST_VERSION);
+        const shouldIncludeGoogleTest = (0, utils_1.parseBooleanInput)((0, core_1.getInput)(consts_1.INPUT_INCLUDE_GOOGLE_TEST));
+        const binPath = `${process.env.GITHUB_WORKSPACE}/cache/${installationPath}`;
+        (0, core_1.info)(`Setting dependencies in ${binPath}`);
+        const isInstallationCached = yield (0, utils_1.restoreDepCache)(binPath, grpcVersionSpec, shouldIncludeGoogleTest, googleTestVersion);
         if (!isInstallationCached) {
-            (0, core_1.info)(`Setup grpc version spec ${versionSpec}`);
-            yield (0, io_1.mkdirP)(grpcInstallationPath);
-            if ((0, fs_1.existsSync)('grpc')) {
-                (0, core_1.info)(`Found cloned grpc repo`);
+            (0, core_1.info)(`Setup dependencies to cache`);
+            yield (0, io_1.mkdirP)(binPath);
+            yield (0, grpcUtils_1.buildGrpc)(binPath, grpcVersionSpec);
+            if (shouldIncludeGoogleTest) {
+                yield (0, googleTestUtils_1.buildGoogleTest)(binPath, googleTestVersion);
             }
-            else {
-                yield (0, utils_1.installGrpcVersion)(versionSpec);
-            }
-            yield (0, utils_1.makeGrpc)(grpcInstallationPath);
-            yield (0, utils_1.cacheGrpcInstallation)(versionSpec, grpcInstallationPath);
+            yield (0, utils_1.createDepCache)(binPath, grpcVersionSpec, shouldIncludeGoogleTest, googleTestVersion);
         }
-        (0, core_1.info)(`Setting env variables`);
-        (0, core_1.addPath)(path_1.default.join(grpcInstallationPath, 'bin'));
-        (0, core_1.exportVariable)('GRPC_ROOT', grpcInstallationPath);
-        (0, utils_1.addEnvPath)('CMAKE_PREFIX_PATH', grpcInstallationPath);
-        (0, utils_1.addEnvPath)('LD_LIBRARY_PATH', path_1.default.join(grpcInstallationPath, 'lib'));
-        (0, core_1.info)(`Successfully setup grpc version ${versionSpec}`);
+        // Setting env variables
+        (0, core_1.addPath)(path_1.default.join(binPath, 'bin'));
+        (0, core_1.exportVariable)('GRPC_ROOT', binPath);
+        (0, utils_1.addEnvPath)('CMAKE_PREFIX_PATH', binPath);
+        (0, utils_1.addEnvPath)('LD_LIBRARY_PATH', path_1.default.join(binPath, 'lib'));
+        (0, core_1.info)(`Successfully setup grpc version ${grpcVersionSpec}`);
     });
 }
 exports.run = run;

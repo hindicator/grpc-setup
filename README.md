@@ -1,10 +1,11 @@
 # grpc-setup
 
 This GitHub Action package is designed to install and build gRPC C++ dependencies for your project. It compiles, installs, and caches the gRPC environment for you, making it easy to use gRPC in your GitHub workflows.
+In addition *googletest* binaries can be included with the `include-google-test` flag.
 
 ## gRPC C++ Template Example
 
-Check this Check this [gRPC C++ Template](https://github.com/hindicator/grpc-cpp-template) repository. repository.
+Check this [gRPC C++ Template](https://github.com/hindicator/grpc-cpp-template) repository.
 
 **Example CI Job**
 ```
