@@ -9,6 +9,14 @@ inputs:
     description: Installation path of grpc
     required: false
     default: grpc
+  include-google-test:
+    description: Should include google test
+    required: false
+    default: true
+  google-test-version:
+    description: Google-test tag version
+    required: false
+    default: 1.14.0
   token:
     description: Used to pull grpc distributions from hindicator/grpc-versions. Since there's a default, this is typically not supplied by the user.
     required: false

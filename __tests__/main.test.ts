@@ -7,8 +7,8 @@
  */
 
 import * as core from '@actions/core';
-import * as main from '../src';
-import { INPUT_GRPC_VERSION, INPUT_INSTALLATION_PATH } from '../src/utils';
+import * as main from '../src/main';
+import { INPUT_GRPC_VERSION, INPUT_INSTALLATION_PATH } from '../src/consts';
 
 // Mock the action's main function
 const runMock = jest.spyOn(main, 'run');
