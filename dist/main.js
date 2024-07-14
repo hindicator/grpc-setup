@@ -24,18 +24,19 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const grpcVersionSpec = (0, core_1.getInput)(consts_1.INPUT_GRPC_VERSION);
         const installationPath = (0, core_1.getInput)(consts_1.INPUT_INSTALLATION_PATH);
+        const googleTestVersion = (0, core_1.getInput)(consts_1.INPUT_GOOGLE_TEST_VERSION);
         const shouldIncludeGoogleTest = (0, utils_1.parseBooleanInput)((0, core_1.getInput)(consts_1.INPUT_INCLUDE_GOOGLE_TEST));
         const binPath = `${process.env.GITHUB_WORKSPACE}/cache/${installationPath}`;
         (0, core_1.info)(`Setting dependencies in ${binPath}`);
-        const isInstallationCached = yield (0, utils_1.restoreDepCache)(grpcVersionSpec, binPath, shouldIncludeGoogleTest);
+        const isInstallationCached = yield (0, utils_1.restoreDepCache)(binPath, grpcVersionSpec, shouldIncludeGoogleTest, googleTestVersion);
         if (!isInstallationCached) {
             (0, core_1.info)(`Setup dependencies to cache`);
             yield (0, io_1.mkdirP)(binPath);
             yield (0, grpcUtils_1.buildGrpc)(binPath, grpcVersionSpec);
             if (shouldIncludeGoogleTest) {
-                yield (0, googleTestUtils_1.buildGoogleTest)(binPath);
+                yield (0, googleTestUtils_1.buildGoogleTest)(binPath, googleTestVersion);
             }
-            yield (0, utils_1.createDepCache)(grpcVersionSpec, binPath, shouldIncludeGoogleTest);
+            yield (0, utils_1.createDepCache)(binPath, grpcVersionSpec, shouldIncludeGoogleTest, googleTestVersion);
         }
         // Setting env variables
         (0, core_1.addPath)(path_1.default.join(binPath, 'bin'));

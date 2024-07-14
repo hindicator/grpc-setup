@@ -17,7 +17,6 @@ const core_1 = require("@actions/core");
 const exec_1 = require("@actions/exec");
 const io_1 = require("@actions/io");
 const path_1 = __importDefault(require("path"));
-const consts_1 = require("./consts");
 function cloneGoogleTest(versionSpec) {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.info)('Cloning grpc repo...');
@@ -25,7 +24,7 @@ function cloneGoogleTest(versionSpec) {
             'clone',
             'https://github.com/google/googletest.git',
             '-b',
-            'v1.14.0' + versionSpec,
+            'v' + versionSpec,
         ]);
     });
 }
@@ -46,9 +45,8 @@ function makeBuildGoogleTest(binPath) {
     });
 }
 exports.makeBuildGoogleTest = makeBuildGoogleTest;
-function buildGoogleTest(binPath) {
+function buildGoogleTest(binPath, googleTestVersion) {
     return __awaiter(this, void 0, void 0, function* () {
-        const googleTestVersion = (0, core_1.getInput)(consts_1.INPUT_GOOGLE_TEST_VERSION);
         (0, core_1.info)(`Cloning googleTest repo with tag ${googleTestVersion}`);
         yield cloneGoogleTest(googleTestVersion);
         (0, core_1.info)(`Make GoogleTest binaries ${googleTestVersion}`);

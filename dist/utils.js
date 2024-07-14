@@ -57,10 +57,10 @@ function parseBooleanInput(input) {
     return false;
 }
 exports.parseBooleanInput = parseBooleanInput;
-function restoreDepCache(versionSpec, installationPath, shouldIncludeGoogleTest) {
+function restoreDepCache(installationPath, grpcVersion, shouldIncludeGoogleTest, googleTestVersion) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!(0, isNil_1.default)(installationPath)) {
-            const versionCacheKey = `${consts_1.INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${versionSpec}`;
+            const versionCacheKey = `${consts_1.INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${googleTestVersion}-${grpcVersion}`;
             const cacheKey = yield cache.restoreCache([installationPath], versionCacheKey);
             if (!(0, isNil_1.default)(cacheKey)) {
                 (0, core_1.info)(`Found grpc installation in cache @ ${installationPath}`);
@@ -71,11 +71,12 @@ function restoreDepCache(versionSpec, installationPath, shouldIncludeGoogleTest)
     });
 }
 exports.restoreDepCache = restoreDepCache;
-function createDepCache(versionSpec, installationPath, shouldIncludeGoogleTest) {
+function createDepCache(installationPath, grpcVersion, shouldIncludeGoogleTest, googleTestVersion) {
     return __awaiter(this, void 0, void 0, function* () {
-        const versionCacheKey = `${consts_1.INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${versionSpec}`;
+        const versionCacheKey = `${consts_1.INSTALLATION_CACHE_KEY}-${shouldIncludeGoogleTest}-${googleTestVersion}-${grpcVersion}`;
         const cacheId = yield cache.saveCache([installationPath], versionCacheKey);
         (0, core_1.info)(`Cached grpc installation @ ${installationPath}`);
+        (0, core_1.info)(`versionCacheKey : ${versionCacheKey}`);
         (0, core_1.info)(`Cache ID: ${cacheId}`);
     });
 }
